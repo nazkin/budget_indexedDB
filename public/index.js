@@ -15,8 +15,7 @@ dbReq.onupgradeneeded = function(event) {
 }
 dbReq.onsuccess = function(event) {
   db = event.target.result;
-  // addBudget(db, "Check", 300);
-  // subtractBudget(db, "Food",20);
+
   getBudget(db);
  
 
@@ -68,7 +67,7 @@ function getBudget(db){
       }).then(final=>{
         console.log(final);
         initPopulate();
-      });
+      }).catch(err=> console.log("The internet is not back on homie"));
      
     } else {
       console.log("note 1 not found")
@@ -93,6 +92,18 @@ function initPopulate() {
     populateTotal();
     populateTable();
     populateChart();
+
+    //Delete indexedDB such that it can be created each time a user is offline
+    let req = indexedDB.deleteDatabase('myDatabase');
+    req.onsuccess = function () {
+      console.log("Information successfully transfered to database");
+    };
+    req.onerror = function () {
+        console.log("Information could not be transferred ");
+    };
+    req.onblocked = function () {
+        console.log("You are blocked to perform this action");
+    };
   });
 }
 
