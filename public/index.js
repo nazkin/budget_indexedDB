@@ -78,6 +78,18 @@ function getBudget(db){
   }
 }
 
+function deleteObjectStore() {
+  // Start a database transaction and get the notes object store
+  let tx = db.transaction(['budget'], 'readwrite');
+  let store = tx.objectStore('budget');
+
+  store.clear();
+  // Wait for the database transaction to complete
+  tx.oncomplete = function() { console.log('All transactions successfully transferred to database') }
+  tx.onerror = function(event) {
+    alert('error storing note ' + event.target.errorCode);
+  }
+}
 
 function initPopulate() {
   fetch("/api/transaction")
@@ -94,16 +106,7 @@ function initPopulate() {
     populateChart();
 
     //Delete indexedDB such that it can be created each time a user is offline
-    let req = indexedDB.deleteDatabase('myDatabase');
-    req.onsuccess = function () {
-      console.log("Information successfully transfered to database");
-    };
-    req.onerror = function () {
-        console.log("Information could not be transferred ");
-    };
-    req.onblocked = function () {
-        console.log("You are blocked to perform this action");
-    };
+   deleteObjectStore();
   });
 }
 
