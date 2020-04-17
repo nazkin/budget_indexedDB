@@ -5,13 +5,20 @@ let offlineTransactions = [];
 let db;
 let dbReq = indexedDB.open('myDatabase', 1);
 
+
+//***********************************As the app start we need to initialize our indexedDB***********************************
 dbReq.onupgradeneeded = function(event) {
-  // Set the db variable to our database so we can use it!  
+  // Set the db variable to our database so we can use it
   db = event.target.result;
 
-  // Create an object store named notes. Object stores
-  // in databases are where data are stored.
-  let notes = db.createObjectStore('budget', {autoIncrement: true});
+  // Create an object store named budget if it doesnt exist and retrieve it if it does
+  let notes;
+  if (!db.objectStoreNames.contains('budget')) {
+    notes = db.createObjectStore('budget', {autoIncrement: true});
+  } else {
+    notes = dbReq.transaction.objectStore('budget');
+  }
+
 }
 dbReq.onsuccess = function(event) {
   db = event.target.result;
@@ -25,7 +32,7 @@ dbReq.onerror = function(event) {
   alert('error opening database ' + event.target.errorCode);
 }
 
-//add budget function that is going to save things in the db
+//*************************************add budget function that is going to save our entries into indexedDB******************
 function addBudget(db, description, value) {
   // Start a database transaction and get the notes object store
   let tx = db.transaction(['budget'], 'readwrite');
@@ -43,7 +50,7 @@ function addBudget(db, description, value) {
 }
 
 
-//retrieves the budget stored in the indexDB and inserts it in the back end and finally fetches this data
+//*****************retrieves the budget stored in the indexDB and inserts it in the back end and finally fetches this data********
 function getBudget(db){
   let tx = db.transaction(['budget'], 'readonly');
   let store = tx.objectStore('budget');
@@ -77,7 +84,7 @@ function getBudget(db){
     alert('error getting note 1 ' + event.target.errorCode);
   }
 }
-
+//*************************************************Function clears the object store in indexedDB after the information was successfully transferred to backend database*********/
 function deleteObjectStore() {
   // Start a database transaction and get the notes object store
   let tx = db.transaction(['budget'], 'readwrite');
